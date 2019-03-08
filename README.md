@@ -1,7 +1,9 @@
 # harvester-docker
 ![harvester-gif](https://imgur.com/0dghLur.gif)
 
-Browser-based harvesting environment using ROS and Gazebo on a Google Compute Engine Instance. For a video summary of the full project, click [here](https://youtu.be/C6hrCVv2B-o).
+Browser-based harvesting environment using ROS and Gazebo on a Google Compute Engine Instance. For a video summary of the full project, click [here](https://youtu.be/C6hrCVv2B-o). 
+
+This repo is a fork of [nvidia-docker-novnc](https://github.com/willkessler/nvidia-docker-novnc) that has been modified to work with [harvester-sim](https://github.com/jsather/harvester-sim) and [harvester-python](https://github.com/jsather/harvester-python). 
 
 ## Getting Started
 These instructions will get you a copy of the project up and running using Google Compute Engine.
@@ -19,7 +21,7 @@ Set up firewalls for VNC, noVNC, and NFS.
 ### Installing
 Clone the repo into your GCE instance.
 ```
-git clone https://github.com/jsather/harvester.git
+git clone https://github.com/jsather/harvester-docker.git
 ```
 Download the relevant CUDA runtine and dev packages from the [NVIDIA developer site](https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/), and place into project. 
 ```
@@ -32,7 +34,7 @@ Run the preinstall script.
 cd harvester/docker_setup/
 sudo ./preinstall.sh
 ```
-Configure [create_nfs_volume.sh](harvester/docker_setup/setup_host/create_nfs_volume.sh) to set up nfs between your development machine and GCE instance. Set the global variables `SERVER_IP`, `SERVER_DIR`, and `DEST` in the file header. 
+Configure [create_nfs_volume.sh](harvester/docker_setup/setup_host/create_nfs_volume.sh) to set up nfs between your development machine and GCE instance. Set the global variables `SERVER_IP`, `SERVER_DIR`, and `DEST` in the file header. `SERVER_DIR` should point to a local directory containing [harvester-sim](https://github.com/jsather/harvester-sim) and [harvester-python](https://github.com/jsather/harvester-python).
 ```
 # Example
 SERVER_IP=141.126.89.186
@@ -50,7 +52,7 @@ cd harvester
 sudo ./run.sh
 ```
 Navigate to XX.XXX.XX.XXX:40001/vnc.html?host=XX.XXX.XX.XXX&port=40001, substituting your instance's external IP address.
-ADD IMAGE OF BROWSER GUI
+![browser](https://imgur.com/NgCbpDg.jpg)
 
 ## Running the Simulated Environment
 Open the terminal in the browser-based gui and build the catkin environment.
@@ -63,9 +65,6 @@ Run harvester_test.launch to spawn arm and randomly generated plant.
 ``` 
 roslaunch harvester_gazebo harvester_test.launch
 ```
-
-ADD IMAGE OF HARVESTER GAZEBO
-ADD LINK TO HARVESTER PYTHON
 
 After testing, interface with [harvester-python](https://github.com/jsather/harvester-python) or your own agent.
 
@@ -83,5 +82,4 @@ After testing, interface with [harvester-python](https://github.com/jsather/harv
 This project is licensed under the MIT license - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
-* harvester-ros based off of [kinova-ros](https://github.com/Kinovarobotics/kinova-ros)
-* agent interface inspired by [GPS](http://rll.berkeley.edu/gps/) and [OpenAI Gym](https://gym.openai.com/)
+* Dockerfile based off of [nvidia-docker-novnc](https://github.com/willkessler/nvidia-docker-novnc)
