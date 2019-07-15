@@ -135,13 +135,12 @@ RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb
 # Clone harvester-python and harvester-ros repositories
 RUN mkdir -p /root/git && \
     cd /root/git && \
-    git clone https://github.com/jsather/harvester-python.git
+    git clone https://github.com/jsather/harvester-python.git && \
     git clone https://github.com/jsather/harvester-sim.git
 
 # Create ROS workspace for harvester-ros
 RUN /bin/bash -c "mkdir -p /root/catkin_ws/src ;\
-                  mkdir -p /mnt/nfs/harvester-ros ;\
-                  ln -sf /mnt/git/harvester-ros /root/catkin_ws/src/ ;\
+                  ln -sf /root/git/harvester-ros /root/catkin_ws/src/ ;\
                   cd /root/catkin_ws ;\
                   catkin_make"
 
@@ -156,7 +155,7 @@ RUN cd /tmp && \
 RUN pip install tensorflow-gpu
 
 # Set up harvester-python
-COPY ./gpu_config.py /mnt/nfs/harvester_python/config.py
+COPY ./gpu_config.py /root/git/harvester_python/config.py
 RUN cd /mnt/git/harvester_python && \
     python setup.py build_ext --inplace
 
@@ -165,7 +164,7 @@ RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-ros/harveste
         /root/.bashrc && \
     echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
         /root/.bashrc && \
-    echo "export PYTHONPATH=/mnt/nfs/harvester_python:$PYTHONPATH" >> \
+    echo "export PYTHONPATH=/root/git/harvester_python:$PYTHONPATH" >> \
         /root/.bashrc && \
     echo "source /opt/ros/kinetic/setup.bash" >> /root/.bashrc
 
