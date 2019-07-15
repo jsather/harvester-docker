@@ -21,31 +21,30 @@ Set up firewalls for VNC, noVNC, and NFS.
 ### Installing
 Clone the repo into your GCE instance.
 ```
+mkdir ~/git
+cd ~/git
 git clone https://github.com/jsather/harvester-docker.git
 ```
+
 Download the relevant CUDA runtine and dev packages from the [NVIDIA developer site](https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/), and place into project. 
 ```
-mkdir -p harvester/docker_setup/harvester_project_build/cuda
-mv libcudnn7_7.2.1.38-1+cuda9.0_amd64.deb harvester/docker_setup/harvester_project_build/cuda/
-mv libcudnn7-dev_7.2.1.38-1+cuda9.0_amd64.deb harvester/docker_setup/harvester_project_build/cuda/
+mkdir ~/git/harvester-docker/harvester_project_build/cuda
+mv libcudnn7_7.2.1.38-1+cuda9.0_amd64.deb ~/git/harvester-docker/harvester_project_build/cuda/
+mv libcudnn7-dev_7.2.1.38-1+cuda9.0_amd64.deb ~/git/harvester-docker/harvester_project_build/cuda/
 ```
+
 Run the preinstall script.
 ```
-cd harvester/docker_setup/
+cd ~/git/harvester-docker
 sudo ./preinstall.sh
 ```
-Configure [create_nfs_volume.sh](harvester/docker_setup/setup_host/create_nfs_volume.sh) to set up nfs between your development machine and GCE instance. Set the global variables `SERVER_IP`, `SERVER_DIR`, and `DEST` in the file header. `SERVER_DIR` should point to a local directory containing [harvester-sim](https://github.com/jsather/harvester-sim) and [harvester-python](https://github.com/jsather/harvester-python).
-```
-# Example
-SERVER_IP=141.126.89.186
-SERVER_DIR=/home/jonathon/projects/harvester/harvester_instance
-DEST=/mnt/disks/nfs 
-```
+
 Build the Docker container. This will take 30-60 minutes.
 ```
 cd harvester
 sudo ./build.sh
 ```
+
 Start the Docker container to run your browser-based GUI.
 ```
 cd harvester
@@ -55,18 +54,17 @@ Navigate to XX.XXX.XX.XXX:40001/vnc.html?host=XX.XXX.XX.XXX&port=40001, substitu
 ![browser](https://imgur.com/NgCbpDg.jpg)
 
 ## Running the Simulated Environment
-Open the terminal in the browser-based gui and build the catkin environment.
+Open the terminal in the browser-based gui and source the catkin environment.
 ```
-cd /root/catkin_ws
-catkin build
-source devel/setup.bash
+source /root/catkin_ws/devel/setup.bash
 ```
+
 Run harvester_test.launch to spawn arm and randomly generated plant.
 ``` 
 roslaunch harvester_gazebo harvester_test.launch
 ```
 
-After testing, interface with [harvester-python](https://github.com/jsather/harvester-python) or your own agent.
+After testing, interface with [harvester-python](https://github.com/jsather/harvester-python) or your own agent. Note that the Dockerfile automatically clones a copy of harvester-python and harvester-sim into the ~/git/ folder of your container.
 
 ## Built With
 * [Docker](https://www.docker.com/) - Container platform 
