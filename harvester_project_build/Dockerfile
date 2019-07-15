@@ -165,7 +165,7 @@ RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-sim/harveste
         /root/.bashrc && \
     echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-sim/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
         /root/.bashrc && \
-    echo "export PYTHONPATH=/root/git/harvester_python:$PYTHONPATH" >> \
+    echo "export PYTHONPATH=/root/git/harvester-python:$PYTHONPATH" >> \
         /root/.bashrc && \
     echo "source /opt/ros/kinetic/setup.bash" >> /root/.bashrc
 
