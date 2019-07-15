@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-# Updated by Jonathon Sather 9/9/18
+# Updated by Jonathon Sather
 
 # Start XVnc/X/Lubuntu
 chmod -f 777 /tmp/.X11-unix
@@ -8,7 +8,7 @@ chmod -f 777 /tmp/.X11-unix
 touch ~/.Xauthority
 xauth generate :0 . trusted
 rm -rf /tmp/.X1-lock # added
-rm -rf /tmp/.X11-unix/X1 # added 
+rm -rf /tmp/.X11-unix/X1 # added
 /opt/TurboVNC/bin/vncserver -SecurityTypes None
 
 

@@ -1,7 +1,6 @@
 #!/bin/bash
 # Original build script from: https://github.com/willkessler/nvidia-docker-novnc
 # Modified by Jonathon Sather
-# Last updated: 9/9/18
 
 echo "********************************************************************************"
 echo ""
@@ -14,7 +13,6 @@ cd setup_host
 ./install-nvidia-drivers.sh
 ./install-nvidia-docker2.sh
 ./add_xhost.sh
-./create_nfs_volume.sh # added
 ./create_persistent_volume.sh # added
 cd ..
 
