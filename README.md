@@ -1,7 +1,7 @@
 # harvester-docker
 ![harvester-gif](https://imgur.com/0dghLur.gif)
 
-Browser-based harvesting environment using ROS and Gazebo on a Google Compute Engine Instance. For a video summary of the full project, click [here](https://youtu.be/C6hrCVv2B-o). 
+Browser-based harvesting environment using ROS and Gazebo on a Google Compute Engine Instance. Originally used by Jonathon Sather in his research on autonomous strawberry harvesting ([paper](https://arxiv.org/abs/1903.02074)) ([video summary](https://youtu.be/C6hrCVv2B-o)).
 
 This repo is a fork of [nvidia-docker-novnc](https://github.com/willkessler/nvidia-docker-novnc) that has been modified to work with [harvester-sim](https://github.com/jsather/harvester-sim) and [harvester-python](https://github.com/jsather/harvester-python). 
 
