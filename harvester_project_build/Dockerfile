@@ -157,7 +157,7 @@ RUN pip install tensorflow-gpu
 
 # Set up harvester-python
 COPY ./gpu_config.py /root/git/harvester-python/config.py
-RUN cd /mnt/git/harvester-python && \
+RUN cd /root/git/harvester-python && \
     python setup.py build_ext --inplace
 
 # Update .bashrc
