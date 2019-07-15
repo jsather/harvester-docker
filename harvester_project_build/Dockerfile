@@ -5,7 +5,7 @@ LABEL maintainer="Jonathon Sather"
 # Mods by Jonathon Sather:
 #    - Added NVIDIA software CUDA + CUDnn to set up for Tensorflow-gpu install
 #    - Added additional ROS packages/Moveit and set up catkin workspace
-#    - Added harvester-python and harvester-ros
+#    - Added harvester-python and harvester-sim
 
 ARG SOURCEFORGE=https://sourceforge.net/projects
 ARG TURBOVNC_VERSION=2.1.2
@@ -132,15 +132,15 @@ RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb
     wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add - && \
     apt-get update -y && apt-get install -y gazebo7
 
-# Clone harvester-python and harvester-ros repositories
+# Clone harvester-python and harvester-sim repositories
 RUN mkdir -p /root/git && \
     cd /root/git && \
     git clone https://github.com/jsather/harvester-python.git && \
     git clone https://github.com/jsather/harvester-sim.git
 
-# Create ROS workspace for harvester-ros
+# Create ROS workspace for harvester-sim
 RUN /bin/bash -c "mkdir -p /root/catkin_ws/src ;\
-                  ln -sf /root/git/harvester-ros /root/catkin_ws/src/ ;\
+                  ln -sf /root/git/harvester-sim /root/catkin_ws/src/ ;\
                   cd /root/catkin_ws ;\
                   source /opt/ros/kinetic/setup.bash ;\
                   catkin_make"
@@ -156,14 +156,14 @@ RUN cd /tmp && \
 RUN pip install tensorflow-gpu
 
 # Set up harvester-python
-COPY ./gpu_config.py /root/git/harvester_python/config.py
-# RUN cd /mnt/git/harvester_python && \
-#    python setup.py build_ext --inplace  # See why not working...
+COPY ./gpu_config.py /root/git/harvester-python/config.py
+RUN cd /mnt/git/harvester-python && \
+    python setup.py build_ext --inplace
 
 # Update .bashrc
-RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo:$GAZEBO_RESOURCE_PATH" >> \
+RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-sim/harvester_gazebo:$GAZEBO_RESOURCE_PATH" >> \
         /root/.bashrc && \
-    echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
+    echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-sim/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
         /root/.bashrc && \
     echo "export PYTHONPATH=/root/git/harvester_python:$PYTHONPATH" >> \
         /root/.bashrc && \
