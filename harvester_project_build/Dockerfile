@@ -5,9 +5,7 @@ LABEL maintainer="Jonathon Sather"
 # Mods by Jonathon Sather:
 #    - Added NVIDIA software CUDA + CUDnn to set up for Tensorflow-gpu install
 #    - Added additional ROS packages/Moveit and set up catkin workspace
-#    - Added darknet and darkflow install + mods
-#    - Customized desktop
-#    - And more!
+#    - Set up harvester-ros and harvester-python repositories
 
 ARG SOURCEFORGE=https://sourceforge.net/projects
 ARG TURBOVNC_VERSION=2.1.2
@@ -100,10 +98,10 @@ RUN mkdir -p /root/.vnc
 COPY ./xstartup.turbovnc /root/.vnc/xstartup.turbovnc
 RUN chmod a+x /root/.vnc/xstartup.turbovnc
 
-# Install ROS
+# Install ROS and relevant packages
 RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > \
     /etc/apt/sources.list.d/ros-latest.list && \
-    apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+    apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y -f && \
@@ -115,91 +113,55 @@ RUN apt-get -y update && \
     python-rosinstall \
     python-rosinstall-generator \
     python-wstool \
-    build-essential \ 
-    python-catkin-tools \ 
+    build-essential \
+    python-catkin-tools \
     clang-format-3.8 \
     ros-kinetic-geometry-msgs \
     ros-kinetic-gazebo-ros \
     ros-kinetic-trac-ik-kinematics-plugin \
     ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control \
-    ros-kinetic-ros-control ros-kinetic-ros-controllers && \ 
+    ros-kinetic-ros-control ros-kinetic-ros-controllers \
+    ros-kinetic-moveit && \
     pip install --upgrade pyassimp  && \
     pip install cython && \
     rosdep init && \
-    rosdep update 
+    rosdep update
 
-# Upgrade Gazebo to latest v7 release
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \ 
+# Upgrade Gazebo to latest v7 release (fixes shadow bug)
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
     wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add - && \
     apt-get update -y && apt-get install -y gazebo7
 
-#Set up catkin workspace, install Moveit, and add modifications
+# Set up harvester-ros
 RUN /bin/bash -c "mkdir -p /root/catkin_ws/src ;\
                   mkdir -p /mnt/nfs/harvester-ros ;\
                   ln -sf /mnt/nfs/harvester-ros /root/catkin_ws/src/ ;\
                   cd /root/catkin_ws ;\
-                  wstool init src ;\ 
-                  wstool merge -t src https://raw.githubusercontent.com/ros-planning/moveit/kinetic-devel/moveit.rosinstall ;\ 
-                  wstool update -t src ;\ 
-                  rosdep install -y --from-paths src --ignore-src --rosdistro kinetic ;\ 
-                  catkin config --extend /opt/ros/kinetic --cmake-args -DCMAKE_BUILD_TYPE=Release ;\
-                  cd /root/catkin_ws/src/moveit/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor ;\
-                  mv current_state_monitor.h current_state_monitor.h.orig"
-COPY ./moveit/current_state_monitor.h /root/catkin_ws/src/moveit/moveit_ros/planning/planning_scene_monitor/include/moveit/planning_scene_monitor
-RUN /bin/bash -c "cd /root/catkin_ws ;\
-                  catkin build"
+                  catkin_make"
 
 # Install cuDNN runtime and dev packages
-COPY ./cuda/libcudnn7* /tmp/ 
-RUN cd /tmp && \ 
+COPY ./cuda/libcudnn7* /tmp/
+RUN cd /tmp && \
     dpkg -i libcudnn7_7.2.1.38-1+cuda9.0_amd64.deb && \
-    dpkg -i libcudnn7-dev_7.2.1.38-1+cuda9.0_amd64.deb && \ 
+    dpkg -i libcudnn7-dev_7.2.1.38-1+cuda9.0_amd64.deb && \
     rm -f /tmp/libcudnn7*
 
-# Install Tensorflow 
-RUN pip install tensorflow-gpu 
+# Install Tensorflow
+RUN pip install tensorflow-gpu
 
-# Install Darknet, configure, and add modifications
-# RUN mkdir -p /root/git && \ 
-#     cd /root/git && \ 
-#     git clone https://github.com/pjreddie/darknet.git && \ 
-#     cd darknet && \ 
-#     cp Makefile Makefile.orig && \ 
-#     sed -i '/GPU/s/=.*/=1/' Makefile && \ 
-#     sed -i '/CUDNN/s/=.*/=1/' Makefile && \ 
-#     sed -i '/OPENCV/s/=.*/=1/' Makefile && \ 
-#     sed -i '/OPENMP/s/=.*/=0/' Makefile && \ 
-#     sed -i '/DEBUG/s/=.*/=0/' Makefile && \ 
-#     make 
-# RUN cd /root/git/darknet/python && \ 
-#     mv darknet.py darknet.py.orig
-# COPY ./darknet/darknet.py /root/git/darknet/python
+# Set up harvester-python
+COPY ./gpu_config.py /mnt/nfs/harvester_python/config.py
+RUN cd /mnt/nfs/harvester_python && \
+    python setup.py build_ext --inplace
 
-# Install Darkflow and add modifications
-RUN mkdir -p /root/git && \ 
-    cd /root/git && \ 
-    git clone https://github.com/thtrieu/darkflow.git && \ 
-    cd darkflow && \ 
-    pip install -e . && \ 
-    mkdir built_graph && \
-    cd darkflow/net && \ 
-    mv build.py build.py.orig 
-COPY ./darkflow/yolov2-tiny-strawb.meta /root/git/darkflow/built_graph
-COPY ./darkflow/yolov2-tiny-strawb.pb /root/git/darkflow/built_graph
-COPY ./darkflow/yolov2-tiny-strawb.cfg /root/git/darkflow/cfg
-COPY ./darkflow/yolov2-tiny-strawb_final.weights /root/git/darkflow/bin
-COPY ./darkflow/labels.txt /root/git/darkflow
-COPY ./darkflow/build.py /root/git/darkflow/darkflow/net 
-
-
-# Update .bashrc 
+# Update .bashrc
 RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo:$GAZEBO_RESOURCE_PATH" >> \
-        /root/.bashrc && \ 
-    echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
-        /root/.bashrc && \ 
-    echo "export PYTHONPATH=/mnt/nfs/harvester_python:/root/git/darknet/python:/root/git/darkflow/darkflow:$PYTHONPATH" >> \ 
         /root/.bashrc && \
-    echo "source /opt/ros/kinetic/setup.bash" >> /root/.bashrc 
+    echo "export GAZEBO_MODEL_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo/models:$GAZEBO_MODEL_PATH" >> \
+        /root/.bashrc && \
+    echo "export PYTHONPATH=/mnt/nfs/harvester_python:$PYTHONPATH" >> \
+        /root/.bashrc && \
+    echo "source /opt/ros/kinetic/setup.bash" >> /root/.bashrc
 
 # Create some useful default aliases
 RUN printf "%s\n" \
