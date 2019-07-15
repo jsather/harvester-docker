@@ -53,7 +53,7 @@ sudo ./run.sh
 Navigate to XX.XXX.XX.XXX:40001/vnc.html?host=XX.XXX.XX.XXX&port=40001, substituting your instance's external IP address.
 ![browser](https://imgur.com/NgCbpDg.jpg)
 
-## Running the Simulated Environment
+## Running harvester-sim
 Open the terminal in the browser-based gui and source the catkin environment.
 ```
 source /root/catkin_ws/devel/setup.bash
@@ -64,7 +64,14 @@ Run harvester_test.launch to spawn arm and randomly generated plant.
 roslaunch harvester_gazebo harvester_test.launch
 ```
 
-After testing, interface with [harvester-python](https://github.com/jsather/harvester-python) or your own agent. Note that the Dockerfile automatically clones a copy of harvester-python and harvester-sim into the ~/git/ folder of your container.
+## Running harvester-python
+Open the terminal in the browser-based gui and start training.
+```
+cd /root/git/harvester-python
+python train.py
+```
+
+See [harvester-python](https://github.com/jsather/harvester-python) and [harvester-sim](https://github.com/jsather/harvester-sim) for additional usage instructions.
 
 ## Built With
 * [Docker](https://www.docker.com/) - Container platform 
