@@ -142,6 +142,7 @@ RUN mkdir -p /root/git && \
 RUN /bin/bash -c "mkdir -p /root/catkin_ws/src ;\
                   ln -sf /root/git/harvester-ros /root/catkin_ws/src/ ;\
                   cd /root/catkin_ws ;\
+                  source /opt/ros/kinetic/setup.bash ;\
                   catkin_make"
 
 # Install cuDNN runtime and dev packages
@@ -156,8 +157,8 @@ RUN pip install tensorflow-gpu
 
 # Set up harvester-python
 COPY ./gpu_config.py /root/git/harvester_python/config.py
-RUN cd /mnt/git/harvester_python && \
-    python setup.py build_ext --inplace
+# RUN cd /mnt/git/harvester_python && \
+#    python setup.py build_ext --inplace  # See why not working...
 
 # Update .bashrc
 RUN echo "export GAZEBO_RESOURCE_PATH=/root/catkin_ws/src/harvester-ros/harvester_gazebo:$GAZEBO_RESOURCE_PATH" >> \
